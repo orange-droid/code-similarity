@@ -1,0 +1,39 @@
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        len1 = len(nums1)
+        len2 = len(nums2)
+        if(len1==1 and len2==1):
+            return (nums1[0]+nums2[0])/2
+        elif(len1==1 and len2==0):
+            return nums1[0]
+        elif(len1==0 and len2==1):
+            return nums2[0]
+        elif(len1>0 and len2==0):
+            if(len1%2==0):
+                return (nums1[int(len1/2-1)]+nums1[int(len1/2)])/2
+            else:
+                return nums1[int((len1-1)/2)]
+        elif(len2>0 and len1==0):
+            if(len2%2==0):
+                return (nums2[int(len2/2-1)]+nums2[int(len2/2)])/2
+            else:
+                return nums2[int((len2-1)/2)]
+        elif(len1==len2==0):
+            return 99
+        else:
+            a = min(nums1[0],nums2[0])
+            b = max(nums1[int(len1-1)],nums2[int(len2-1)])
+            if(a==nums1[0] and b==nums1[int(len1-1)]):
+                nums1_new = nums1[1:len1-1]
+                nums2_new = nums2[:]
+            elif(a==nums2[0] and b==nums2[int(len2-1)]):
+                nums2_new = nums2[1:len2-1]
+                nums1_new = nums1[:]
+            elif(a==nums1[0] and b==nums2[int(len2-1)]):
+                nums1_new = nums1[1:len1]
+                nums2_new = nums2[0:len2-1]
+            elif(a==nums2[0] and b==nums1[int(len1-1)]):
+                nums1_new = nums1[0:len1-1]
+                nums2_new = nums2[1:len2]
+            ans = self.findMedianSortedArrays(nums1_new, nums2_new)
+            return ans

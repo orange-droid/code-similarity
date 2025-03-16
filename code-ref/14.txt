@@ -1,0 +1,48 @@
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        # 左神的方法，比左神那题难，左神写了三天，我写了半天
+        def odd_even(x):
+            return 'odd' if x%2!=0 else 'even'
+        def get_median(arr_s, arr_l, i1, j1, i2, j2):
+            while i1<j1 and i2<j2:
+                mid1=int((i1+j1)/2); mid2=int((i2+j2)/2)
+                offset=(j1-i1)%2  #odd:0; even:1
+                if arr_s[mid1] > arr_l[mid2]:
+                    j1=mid1; i2=mid2+offset
+                elif arr_s[mid1] < arr_l[mid2]:
+                    i1=mid1+offset; j2=mid2
+                else:  #arr_s[mid1] == arr_l[mid2]
+                    return arr_s[mid1], min(arr_s[mid1+1], arr_l[mid2+1])
+            if arr_s[i1] <= arr_l[i2]:
+                res = arr_s[i1+1] if i1+1<len(arr_s) else float('inf')
+                return arr_s[i1], min(arr_l[i2], res)
+            else:
+                res = arr_l[i2+1] if i2+1<len(arr_l) else float('inf')
+                return arr_l[i2], min(arr_s[i1], res)
+        def situation(arr1, arr2):
+            if len(arr1) < len(arr2):
+                ls=len(arr1); ll=len(arr2)
+                arr_s=arr1; arr_l=arr2
+            elif len(arr2) < len(arr1):
+                ls=len(arr2); ll=len(arr1)
+                arr_s=arr2; arr_l=arr1
+            else: return get_median(arr1, arr2, 0, len(arr1)-1, 0, len(arr2)-1)
+            o_e = odd_even(ls+ll)
+            k=int((ls+ll)/2) if o_e=='even' else int((ls+ll)/2+1)
+            i_s=0; j_s=ls-1; i_l=0; j_l=ll-1
+            # k不可能小于ls，也不可能大于ll因此情况1和3不可能。要讨论情况2
+            if arr_l[k-ls-1]>=arr_s[j_s]:
+                return arr_l[k-ls-1], arr_l[k-ls]
+            return get_median(arr_s, arr_l, i_s, j_s, k-ls, k-1)
+
+        o_e = odd_even(len(nums1)+len(nums2))
+        if len(nums1)==0 or len(nums2)==0:
+            if len(nums1)==0 and len(nums2)==0: return
+            elif len(nums1)==0:
+                if o_e=='odd': return nums2[int(len(nums2)/2)]
+                else: return (nums2[int(len(nums2)/2)]+nums2[int(len(nums2)/2-1)])/2
+            else:  # len(nums2)==0
+                if o_e=='odd': return nums1[int(len(nums1)/2)]
+                else: return (nums1[int(len(nums1)/2)]+nums1[int(len(nums1)/2-1)])/2
+        num = situation(nums1, nums2)
+        return num[0] if o_e=='odd' else (num[0]+num[1])/2

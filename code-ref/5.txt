@@ -1,0 +1,52 @@
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        m = len(nums1)
+        n = len(nums2)
+        <!-- We want to use binary search on the smaller array -->
+        <!-- So if m > n, fix it by swapping array's names -->
+        if m > n:
+            return self.findMedianSortedArrays(nums2, nums1)
+        <!-- Apply binary search on the smaller array for efficiency -->
+        left = 0
+        right = m
+
+        while left <= right:
+            <!-- p1 is how many elements we pick from the first array -->
+            p1 = (left + right) // 2
+            <!-- p2 is how many elements we pick from the second array -->
+            <!-- +1 is used when we have two arrays of odd length -->
+            <!-- For example -->
+            <!-- 1,2,3,4 -->
+            <!-- 5,6,7,8 -->
+            <!-- p1 = 1  ==> 1 element -->
+            <!-- p2 = 9 // 2 - 1 = 3 elements to compensate  -->
+            p2 = (m+n+1) // 2 - p1
+            <!-- middle part check: -->
+            <!-- infinities are set in case we end up taking 0 elements -->
+            <!-- (or all elements). For example -->
+            <!-- 1 2 3 4 -->
+            <!-- 5 6 7 8 -->
+            <!--  Here we take all elements from the first array-->
+            <!-- so right goes out of bounds. same with left  -->
+            left1 = nums1[p1-1] if p1-1 >= 0 else -math.inf
+            right1 = nums1[p1] if p1 < m else math.inf
+            left2 = nums2[p2-1] if p2-1 >= 0 else -math.inf
+            right2 = nums2[p2] if p2 < n else math.inf
+            <!-- feedback check -->
+            if left1 <= right2 and left2 <= right1:
+                <!-- consider the middle to be -->
+                <!-- 5,6 | 7,8 -->
+                <!-- Which elements to pick to find the median? -->
+                <!-- max(5,6) = 6 - it's closer to the center -->
+                <!-- min(7,8)  = 7 - it's closer to the center -->
+                <!-- 6+7 // 2 = 13.5 -->
+                if (m + n) % 2 == 0:
+                    return ( max(left1, left2) + min(right1, right2) ) / 2
+                else:
+                    <!-- same for odd length arrays -->
+                    return max(left1, left2)
+            <!-- binary search steps: -->
+            if left2 > right1:
+                left = p1 + 1
+            else:
+                right = p1 - 1
